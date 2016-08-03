@@ -1,11 +1,14 @@
 import socket
+import subprocess
 import json
 import requests
 from smtplib import SMTP
+from shlex import split
 from . import config
 
 
 class Notifier(object):
+
     def notify(self, title, message):
         raise NotImplementedError()
 
@@ -29,6 +32,7 @@ class Pushbullet(Notifier):
 
 
 class Smtp(Notifier):
+
     def __init__(self, smtp_host, smtp_port, username, password, use_tls, from_addr, to_addrs):
         self._smtp_host = smtp_host
         self._smtp_port = smtp_port
@@ -53,6 +57,15 @@ class Smtp(Notifier):
         mailserver.quit()
 
 
+class Command(Notifier):
+
+    def __init__(self, command_string):
+        self._command = command_string
+
+    def notify(self, title, message):
+        subprocess.call(split(self._command))
+
+
 def create_notifiers(app_config):
     notifiers = []
     for n in app_config['notifiers']:
@@ -61,11 +74,13 @@ def create_notifiers(app_config):
         if n["type"] == "pushbullet":
             if "key" not in n:
                 raise config.ConfigError("Missing key for Pushbullet notifier")
-            notifiers.append(Pushbullet(n['key'], n.get('prepend_hostname', False)))
+            notifiers.append(Pushbullet(
+                n['key'], n.get('prepend_hostname', False)))
         elif n["type"] == "smtp":
             for required in ["host", "from", "to"]:
                 if required not in n:
-                    raise config.ConfigError("\"{}\" is a required value for SMTP notifier")
+                    raise config.ConfigError(
+                        "\"{}\" is a required value for SMTP notifier")
             notifiers.append(Smtp(
                 n['host'],
                 int(n.get('port', 25)),
@@ -74,7 +89,13 @@ def create_notifiers(app_config):
                 n.get("use_tls", False),
                 n['from'],
                 n['to']))
+        elif n["type"] == "command":
+            if "command_string" not in n:
+                raise config.ConfigError("\"command_string\" is a required "
+                                         "value for Command notifier")
+            notifiers.append(Command(n['command_string']))
         else:
-            raise config.ConfigError("Unknown notifer type {}".format(n['type']))
+            raise config.ConfigError(
+                "Unknown notifer type {}".format(n['type']))
 
     return notifiers

@@ -11,6 +11,8 @@ notifiers:
     from: "Hostname <hostname@mydomain.com>"
     to:
       - admin@mydomain.com
+  - type: command
+    command_string: "echo hello world"
 filters:
   - match: "\\[(.*?)\\] Peer Connection Initiated with \\[AF_INET\\](.+)"
     title: "OpenVPN Login"

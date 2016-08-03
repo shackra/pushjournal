@@ -41,6 +41,7 @@ def _notify(app_notifiers, title, body, retry):
             else:
                 break
 
+
 @main_entry_point.command()
 @click.option("-c", "--config-file", required=True)
 def run(config_file):
@@ -58,7 +59,8 @@ def run(config_file):
             try:
                 body += "Public IP: {}\n\n".format(_get_public_ip())
             except Exception:
-                logbook.error("Could not get the public IP: {}", traceback.format_exc())
+                logbook.error("Could not get the public IP: {}",
+                              traceback.format_exc())
                 body += "Failed to get the public IP\n"
 
         if app_config.get("show_local_ips", False):
@@ -66,7 +68,8 @@ def run(config_file):
                 body += "Local IPs:\n{}\n\n".format(
                     "\n".join("- {}: {}".format(*addr) for addr in _get_local_ips()))
             except Exception:
-                logbook.error("Could not get local IPs: {}", traceback.format_exc())
+                logbook.error("Could not get local IPs: {}",
+                              traceback.format_exc())
                 body += "Failed to get local IPs\n"
 
         _notify(app_notifiers, "System booted", body, True)
@@ -86,7 +89,8 @@ def run(config_file):
                 if not m:
                     continue
 
-                _notify(app_notifiers, f['title'].format(*m.groups()), f['body'].format(*m.groups()), False)
+                _notify(app_notifiers, f['title'].format(
+                    *m.groups()), f['body'].format(*m.groups()), False)
 
 
 @main_entry_point.command()
@@ -105,7 +109,8 @@ def test_filters(config_file):
                 if not m:
                     continue
 
-                print("Title: {}\nMessage:{}\n".format(f['title'].format(*m.groups()), f['body'].format(*m.groups())))
+                print("Title: {}\nMessage:{}\n".format(
+                    f['title'].format(*m.groups()), f['body'].format(*m.groups())))
 
 
 @main_entry_point.command()
@@ -113,4 +118,5 @@ def test_filters(config_file):
 def test_notifiers(config_file):
     app_config = config.load(config_file)
     app_notifiers = notifiers.create_notifiers(app_config)
-    _notify(app_notifiers, "This is a test message", "This is the message body", True)
+    _notify(app_notifiers, "This is a test message",
+            "This is the message body", True)
