@@ -74,13 +74,11 @@ def create_notifiers(app_config):
         if n["type"] == "pushbullet":
             if "key" not in n:
                 raise config.ConfigError("Missing key for Pushbullet notifier")
-            notifiers.append(Pushbullet(
-                n['key'], n.get('prepend_hostname', False)))
+            notifiers.append(Pushbullet(n['key'], n.get('prepend_hostname', False)))
         elif n["type"] == "smtp":
             for required in ["host", "from", "to"]:
                 if required not in n:
-                    raise config.ConfigError(
-                        "\"{}\" is a required value for SMTP notifier")
+                    raise config.ConfigError("\"{}\" is a required value for SMTP notifier")
             notifiers.append(Smtp(
                 n['host'],
                 int(n.get('port', 25)),
@@ -91,11 +89,9 @@ def create_notifiers(app_config):
                 n['to']))
         elif n["type"] == "command":
             if "command_string" not in n:
-                raise config.ConfigError("\"command_string\" is a required "
-                                         "value for Command notifier")
+                raise config.ConfigError("\"command_string\" is a required value for Command notifier")
             notifiers.append(Command(n['command_string']))
         else:
-            raise config.ConfigError(
-                "Unknown notifer type {}".format(n['type']))
+            raise config.ConfigError("Unknown notifer type {}".format(n['type']))
 
     return notifiers

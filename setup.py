@@ -7,9 +7,7 @@ _in_same_dir = functools.partial(os.path.join, os.path.dirname(__file__))
 try:
     from systemd import journal  # pylint: disable=unused-import
 except ImportError:
-    raise Exception(
-        "Could not import systemd.journal. You should install python-systemd "
-        "using your OS package manager")
+    raise Exception("Could not import systemd.journal. You should install python-systemd using your OS package manager")
 
 
 with open(_in_same_dir("pushjournal", "__version__.py")) as version_file:
@@ -44,4 +42,4 @@ setup(name="pushjournal",
               "pushjournal = pushjournal.main:main_entry_point",
           ]
       ),
-      )
+)
